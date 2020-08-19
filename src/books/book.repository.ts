@@ -2,9 +2,11 @@ import { Book } from './book.entity';
 import { Repository, EntityRepository } from "typeorm";
 import { GetBookFilterDto } from './dto/get-books-filter.dto';
 import { User } from '../auth/user.entity';
+import { Logger, InternalServerErrorException } from '@nestjs/common';
 
 @EntityRepository(Book)
 export class BookRepository extends Repository<Book> {
+    private logger = new Logger();
 
     async getBooks(filterDto: GetBookFilterDto, user: User): Promise<Book[]> {
         const { status, search } = filterDto;
@@ -18,9 +20,13 @@ export class BookRepository extends Repository<Book> {
         if(search)
             query.andWhere('book.title ILIKE :search', { search: `%${search}%` });
 
-        const result = await query.getMany();
-
-        return result;
+        try {            
+            const result = await query.getMany();
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to fetch user ${user.username} books.`)
+            throw new InternalServerErrorException();
+        }
     }
 
     async getBookById(id: number, user: User): Promise<Book> {
@@ -30,8 +36,13 @@ export class BookRepository extends Repository<Book> {
     }
 
     async createBook(book: Book): Promise<Book> {
-        await book.save();
-        return book;
+        try {
+            await book.save();
+            return book;            
+        } catch (error) {
+            this.logger.error(`Failed to create new book for user ${book.user.username}.`)
+            throw new InternalServerErrorException();
+        }
     }
 
     async deleteBook(id: number, user: User): Promise<boolean> {
