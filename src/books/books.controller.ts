@@ -4,7 +4,6 @@ import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { GetBookFilterDto } from './dto/get-books-filter.dto';
 import { BookStatusValidationPipe } from './pipes/book-status-validation.pipe';
-import { Book } from './book.entity';
 import { BookStatus } from './book-status.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.entity';

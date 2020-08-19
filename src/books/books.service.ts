@@ -18,7 +18,7 @@ export class BooksService {
 
     async getBooks(filter: GetBookFilterDto, user: User): Promise<BookViewModel[]> {
         const books = await this.bookRepository.getBooks(filter, user);
-        const booksVM = books.map(book => this.mapBookToViewModel(book));
+        const booksVM = books.map(book => this.bookToViewModel(book));
 
         return booksVM;
     }
@@ -29,15 +29,13 @@ export class BooksService {
         if(!book)
             throw new NotFoundException("Book not found");
     
-        const bookVM = this.mapBookToViewModel(book);
-        return bookVM;
+        return this.bookToViewModel(book);
     }
 
     async createBook(dto: CreateBookDto, user: User): Promise<BookViewModel> {
         const book = await this.bookRepository.createBook(new Book(dto.title, user));
-        const bookVM = this.mapBookToViewModel(book);
 
-        return bookVM;
+        return this.bookToViewModel(book);
     }
 
     async updateBookStatus(id: number, status: BookStatus, user: User): Promise<BookViewModel> {
@@ -49,8 +47,7 @@ export class BooksService {
         book.updateStatus(status);
         await this.bookRepository.updateBook(book);
         
-        const bookVM = this.mapBookToViewModel(book);
-        return bookVM;
+        return this.bookToViewModel(book);
     }
 
     async deleteBook(id: number, user: User): Promise<void> {
@@ -60,8 +57,7 @@ export class BooksService {
             throw new NotFoundException(`Book not found`);
     }
 
-    private mapBookToViewModel(book: Book): BookViewModel {
-        const bookVM = new BookViewModel(book.id, book.title, book.status, book.finishedAt);
-        return bookVM;
+    private bookToViewModel(book: Book): BookViewModel {
+        return new BookViewModel(book.id, book.title, book.status, book.finishedAt);
     }
 }
