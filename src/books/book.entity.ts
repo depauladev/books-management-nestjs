@@ -1,5 +1,6 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { BookStatus } from "./book-status.enum";
+import { User } from '../auth/user.entity';
 
 @Entity()
 export class Book extends BaseEntity {
@@ -11,6 +12,12 @@ export class Book extends BaseEntity {
 
     @Column()
     status: BookStatus;
+
+    @ManyToOne(type => User, user => user.books, { eager: false })
+    user: User;
+
+    @Column()
+    userId: number;
 
     constructor(title: string) {
         super();

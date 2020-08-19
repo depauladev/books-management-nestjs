@@ -1,4 +1,5 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Book } from '../books/book.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -13,4 +14,7 @@ export class User extends BaseEntity {
 
     @Column()
     salt: string;
+
+    @OneToMany(type => Book, book => book.user, { eager: true })
+    books: Book[];
 }
