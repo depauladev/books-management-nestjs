@@ -1,12 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { GetBookFilterDto } from './dto/get-books-filter.dto';
 import { BookStatusValidationPipe } from './pipes/book-status-validation.pipe';
 import { Book } from './book.entity';
 import { BookStatus } from './book-status.enum';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('books')
+@UseGuards(AuthGuard())
 export class BooksController {
     constructor(private booksService: BooksService) {}
 
