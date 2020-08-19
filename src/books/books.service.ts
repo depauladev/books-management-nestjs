@@ -6,6 +6,7 @@ import { BookRepository } from './book.repository';
 import { Book } from './book.entity';
 import { BookStatus } from './book-status.enum';
 import { User } from '../auth/user.entity';
+import { BookViewModel } from './dto/book.viewmodel';
 
 @Injectable()
 export class BooksService {
@@ -15,37 +16,41 @@ export class BooksService {
         private bookRepository: BookRepository
     ) {}
 
-    async getBooks(filter: GetBookFilterDto, user: User): Promise<Book[]> {
-        return await this.bookRepository.getBooks(filter, user);
+    async getBooks(filter: GetBookFilterDto, user: User): Promise<BookViewModel[]> {
+        const books = await this.bookRepository.getBooks(filter, user);
+        const booksVM = books.map(book => this.mapBookToViewModel(book));
+
+        return booksVM;
     }
 
-    async getBookById(id: number, user: User): Promise<Book> {
+    async getBookById(id: number, user: User): Promise<BookViewModel> {
         const book = await this.bookRepository.getBookById(id, user);
 
         if(!book)
             throw new NotFoundException("Book not found");
     
-        return book
+        const bookVM = this.mapBookToViewModel(book);
+        return bookVM;
     }
 
-    async createBook(dto: CreateBookDto, user: User): Promise<Book> {
-        const { title } = dto;
-        const bookToCreate = new Book(title);
-        bookToCreate.user = user;
-        
-        const book = await this.bookRepository.createBook(bookToCreate);
+    async createBook(dto: CreateBookDto, user: User): Promise<BookViewModel> {
+        const book = await this.bookRepository.createBook(new Book(dto.title, user));
+        const bookVM = this.mapBookToViewModel(book);
 
-        delete book.user;
-        return book;
+        return bookVM;
     }
 
-    async updateBookStatus(id: number, status: BookStatus, user: User): Promise<Book> {
-        const book = await this.getBookById(id, user);
-        book.status = status;
+    async updateBookStatus(id: number, status: BookStatus, user: User): Promise<BookViewModel> {
+        const book = await this.bookRepository.getBookById(id, user);
+
+        if(!book)
+            throw new NotFoundException("Book not found");
+
+        book.updateStatus(status);
+        await this.bookRepository.updateBook(book);
         
-        await book.save();
-        delete book.user;
-        return book;
+        const bookVM = this.mapBookToViewModel(book);
+        return bookVM;
     }
 
     async deleteBook(id: number, user: User): Promise<void> {
@@ -53,5 +58,10 @@ export class BooksService {
 
         if(!result)
             throw new NotFoundException(`Book not found`);
+    }
+
+    private mapBookToViewModel(book: Book): BookViewModel {
+        const bookVM = new BookViewModel(book.id, book.title, book.status, book.finishedAt);
+        return bookVM;
     }
 }

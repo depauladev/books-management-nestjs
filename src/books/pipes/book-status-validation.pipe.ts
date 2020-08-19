@@ -12,7 +12,7 @@ export class BookStatusValidationPipe implements PipeTransform {
     transform(value: any){
         value = value.toUpperCase();
 
-        if(this.isStatusvalid(value))
+        if(!this.isStatusvalid(value))
             throw new BadRequestException(`${value} is not a valid status`);
 
         return value;

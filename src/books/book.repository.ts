@@ -45,6 +45,10 @@ export class BookRepository extends Repository<Book> {
         }
     }
 
+    async updateBook(book: Book): Promise<void> {
+        await book.save();
+    }
+
     async deleteBook(id: number, user: User): Promise<boolean> {
         const result = await this.delete({ id, userId: user.id });
 

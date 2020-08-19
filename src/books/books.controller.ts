@@ -9,6 +9,7 @@ import { BookStatus } from './book-status.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
+import { BookViewModel } from './dto/book.viewmodel';
 
 @ApiBearerAuth()
 @ApiTags("Books")
@@ -19,20 +20,20 @@ export class BooksController {
 
     @Get()
     @ApiOperation({ summary: 'Get all user books' })
-    getBooks(@Query(ValidationPipe) filter: GetBookFilterDto, @GetUser() user: User): Promise<Book[]> {
+    getBooks(@Query(ValidationPipe) filter: GetBookFilterDto, @GetUser() user: User): Promise<BookViewModel[]> {
         return this.booksService.getBooks(filter, user);
     }
     
     @Get('/:id')
     @ApiOperation({ summary: 'Get book by id' })
-    getBookById(@Param('id', ParseIntPipe) id: number, @GetUser() user: User): Promise<Book> {
+    getBookById(@Param('id', ParseIntPipe) id: number, @GetUser() user: User): Promise<BookViewModel> {
         return this.booksService.getBookById(id, user);
     }
 
     @Post()
     @ApiOperation({ summary: 'Create new book' })
     @UsePipes(ValidationPipe)
-    createBook(@Body() book: CreateBookDto, @GetUser() user: User): Promise<Book> {
+    createBook(@Body() book: CreateBookDto, @GetUser() user: User): Promise<BookViewModel> {
         return this.booksService.createBook(book, user);
     }
 
@@ -41,7 +42,7 @@ export class BooksController {
     updateBookStatus(
         @Param('id', ParseIntPipe) id: number,
         @Body('status', BookStatusValidationPipe) status: BookStatus, 
-        @GetUser() user: User): Promise<Book> {
+        @GetUser() user: User): Promise<BookViewModel> {
         return this.booksService.updateBookStatus(id, status, user);
     }
 

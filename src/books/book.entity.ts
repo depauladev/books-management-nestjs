@@ -19,10 +19,22 @@ export class Book extends BaseEntity {
     @Column()
     userId: number;
 
-    constructor(title: string) {
+    @Column({ nullable: true })
+    finishedAt: Date;
+
+    constructor(title: string, user: User) {
         super();
         
         this.title = title;
+        this.user = user;
         this.status = BookStatus.TO_READ;
+    }
+
+    updateStatus(status: BookStatus) {
+        this.status = status;
+        this.finishedAt = null;
+        
+        if(status === BookStatus.DONE)
+            this.finishedAt = new Date();
     }
 }
